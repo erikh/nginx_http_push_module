@@ -189,8 +189,13 @@ const  ngx_str_t NGX_HTTP_PUSH_HEADER_ETAG = ngx_string("Etag");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_IF_NONE_MATCH = ngx_string("If-None-Match");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_VARY = ngx_string("Vary");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_ALLOW = ngx_string("Allow");
+
+// CORS headers
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_ORIGIN = ngx_string("Origin");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = ngx_string("Access-Control-Allow-Origin");
+const  ngx_str_t NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_METHODS = ngx_string("Access-Control-Allow-Methods");
+const  ngx_str_t NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_HEADERS = ngx_string("Access-Control-Allow-Headers");
+const  ngx_str_t NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_REQUEST_HEADERS = ngx_string("Access-Control-Request-Headers");
 
 //header values
 const  ngx_str_t NGX_HTTP_PUSH_CACHE_CONTROL_VALUE = ngx_string("no-cache");
@@ -204,7 +209,6 @@ const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET_POST_PUT_DELETE= ngx_string("GET, POST,
 const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET_OPTIONS= ngx_string("GET, OPTIONS");
 const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET= ngx_string("GET");
 const  ngx_str_t NGX_HTTP_PUSH_VARY_HEADER_VALUE = ngx_string("If-None-Match, If-Modified-Since");
-
 
 const ngx_str_t NGX_HTTP_PUSH_CHANNEL_INFO_PLAIN = ngx_string(
 	"queued messages: %ui" CRLF

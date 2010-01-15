@@ -247,6 +247,10 @@ static ngx_int_t ngx_http_push_subscriber_handler(ngx_http_request_t *r) {
             ngx_strncasecmp(origin_header->data, cf->cors_allow.data, cf->cors_allow.len) == 0) {
         ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ALLOW, &NGX_HTTP_PUSH_ALLOW_GET_OPTIONS);
         ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, &cf->cors_allow);
+        ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_METHODS, &NGX_HTTP_PUSH_ALLOW_GET_OPTIONS);
+        // yep, send it right back at them.
+        ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_HEADERS, 
+                ngx_http_push_find_in_header_value(r, NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_REQUEST_HEADERS));
 		ngx_http_push_respond_status_only(r, NGX_HTTP_OK, NULL);
         return NGX_OK;
     } else if (r->method != NGX_HTTP_GET) {
