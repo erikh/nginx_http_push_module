@@ -236,9 +236,27 @@ static ngx_int_t ngx_http_push_subscriber_handler(ngx_http_request_t *r) {
 	
 	ngx_str_t                      *content_type=NULL;
 	ngx_str_t                      *etag;
-	
-	if (r->method != NGX_HTTP_GET) {
-		ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ALLOW, &NGX_HTTP_PUSH_ALLOW_GET); //valid HTTP for teh win
+    ngx_str_t                      *origin_header;
+
+    // if we have an options request, cors_allow is set, our request came with
+    // an options header, and that value matches the value for the cors_allow
+    // setting...
+    if (r->method == NGX_HTTP_OPTIONS && 
+            cf->cors_allow.len > 0 && 
+            (origin_header = ngx_http_push_find_in_header_value(r, NGX_HTTP_PUSH_HEADER_ORIGIN)) != NULL &&
+            ngx_strncasecmp(origin_header->data, cf->cors_allow.data, cf->cors_allow.len) == 0) {
+        ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ALLOW, &NGX_HTTP_PUSH_ALLOW_GET_OPTIONS);
+        ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN, &cf->cors_allow);
+		ngx_http_push_respond_status_only(r, NGX_HTTP_OK, NULL);
+        return NGX_OK;
+    } else if (r->method != NGX_HTTP_GET) {
+        //valid HTTP for teh win
+        if (cf->cors_allow.len > 0) {
+            ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ALLOW, &NGX_HTTP_PUSH_ALLOW_GET_OPTIONS);
+        } else {
+            ngx_http_push_add_response_header(r, &NGX_HTTP_PUSH_HEADER_ALLOW, &NGX_HTTP_PUSH_ALLOW_GET); 
+        }
+
 		return NGX_HTTP_NOT_ALLOWED;
 	}
 	
@@ -1013,7 +1031,7 @@ static ngx_int_t ngx_http_push_subscriber_get_etag_int(ngx_http_request_t * r) {
 	return ngx_abs(tag);
 }
 
-static ngx_str_t * ngx_http_push_subscriber_get_etag(ngx_http_request_t * r) {
+static ngx_str_t * ngx_http_push_find_in_header_value(ngx_http_request_t * r, ngx_str_t header_name) {
     ngx_uint_t                       i;
     ngx_list_part_t                 *part = &r->headers_in.headers.part;
     ngx_table_elt_t                 *header= part->elts;
@@ -1027,12 +1045,16 @@ static ngx_str_t * ngx_http_push_subscriber_get_etag(ngx_http_request_t * r) {
             header = part->elts;
             i = 0;
         }
-        if (header[i].key.len == NGX_HTTP_PUSH_HEADER_IF_NONE_MATCH.len
-            && ngx_strncasecmp(header[i].key.data, NGX_HTTP_PUSH_HEADER_IF_NONE_MATCH.data, header[i].key.len) == 0) {
+        if (header[i].key.len == header_name.len
+            && ngx_strncasecmp(header[i].key.data, header_name.data, header[i].key.len) == 0) {
             return &header[i].value;
         }
     }
 	return NULL;
+}
+
+static ngx_str_t * ngx_http_push_subscriber_get_etag(ngx_http_request_t * r) {
+    return ngx_http_push_find_in_header_value(r, NGX_HTTP_PUSH_HEADER_IF_NONE_MATCH);
 }
 
 //buffer is _copied_

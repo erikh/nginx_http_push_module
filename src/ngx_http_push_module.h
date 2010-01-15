@@ -62,6 +62,7 @@ typedef struct {
 	ngx_str_t                       channel_group;
 	ngx_int_t                       max_channel_id_length;
 	ngx_int_t                       max_channel_subscribers;
+    ngx_str_t                       cors_allow;
 } ngx_http_push_loc_conf_t;
 
 //message queue
@@ -163,6 +164,7 @@ static ngx_int_t ngx_http_push_broadcast_locked(ngx_http_push_channel_t *channel
 #define ngx_http_push_broadcast_message_locked(channel, msg, log, shpool) ngx_http_push_broadcast_locked(channel, msg, 0, NULL, log, shpool)
 
 static ngx_int_t ngx_http_push_respond_to_subscribers(ngx_http_push_channel_t *channel, ngx_http_push_subscriber_t *sentinel, ngx_http_push_msg_t *msg, ngx_int_t status_code, const ngx_str_t *status_line);
+static ngx_str_t * ngx_http_push_find_in_header_value(ngx_http_request_t * r, ngx_str_t header_name);
 static ngx_int_t ngx_http_push_subscriber_get_etag_int(ngx_http_request_t * r);
 static ngx_str_t * ngx_http_push_subscriber_get_etag(ngx_http_request_t * r);
 static void ngx_http_push_subscriber_cleanup(ngx_http_push_subscriber_cleanup_t *data);
@@ -187,6 +189,8 @@ const  ngx_str_t NGX_HTTP_PUSH_HEADER_ETAG = ngx_string("Etag");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_IF_NONE_MATCH = ngx_string("If-None-Match");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_VARY = ngx_string("Vary");
 const  ngx_str_t NGX_HTTP_PUSH_HEADER_ALLOW = ngx_string("Allow");
+const  ngx_str_t NGX_HTTP_PUSH_HEADER_ORIGIN = ngx_string("Origin");
+const  ngx_str_t NGX_HTTP_PUSH_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = ngx_string("Access-Control-Allow-Origin");
 
 //header values
 const  ngx_str_t NGX_HTTP_PUSH_CACHE_CONTROL_VALUE = ngx_string("no-cache");
@@ -197,6 +201,7 @@ const  ngx_str_t NGX_HTTP_PUSH_HTTP_STATUS_410 = ngx_string("410 Gone");
 
 //other stuff
 const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET_POST_PUT_DELETE= ngx_string("GET, POST, PUT, DELETE");
+const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET_OPTIONS= ngx_string("GET, OPTIONS");
 const  ngx_str_t NGX_HTTP_PUSH_ALLOW_GET= ngx_string("GET");
 const  ngx_str_t NGX_HTTP_PUSH_VARY_HEADER_VALUE = ngx_string("If-None-Match, If-Modified-Since");
 

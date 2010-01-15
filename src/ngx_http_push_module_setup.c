@@ -105,6 +105,7 @@ static void *		ngx_http_push_create_loc_conf(ngx_conf_t *cf) {
 	lcf->min_message_recipients=NGX_CONF_UNSET;
 	lcf->max_channel_id_length=NGX_CONF_UNSET;
 	lcf->max_channel_subscribers=NGX_CONF_UNSET;
+    lcf->cors_allow.data=NULL;
 	lcf->channel_group.data=NULL;
 	return lcf;
 }
@@ -121,6 +122,7 @@ static char *	ngx_http_push_merge_loc_conf(ngx_conf_t *cf, void *parent, void *c
 	ngx_conf_merge_value(conf->min_message_recipients, prev->min_message_recipients, NGX_HTTP_PUSH_MIN_MESSAGE_RECIPIENTS);
 	ngx_conf_merge_value(conf->max_channel_id_length, prev->max_channel_id_length, NGX_HTTP_PUSH_MAX_CHANNEL_ID_LENGTH);
 	ngx_conf_merge_value(conf->max_channel_subscribers, prev->max_channel_subscribers, 0);
+	ngx_conf_merge_str_value(conf->cors_allow, prev->cors_allow, "");
 	ngx_conf_merge_str_value(conf->channel_group, prev->channel_group, "");
 	
 	//sanity checks
@@ -347,6 +349,13 @@ static ngx_command_t  ngx_http_push_commands[] = {
       ngx_conf_set_num_slot,
       NGX_HTTP_LOC_CONF_OFFSET,
       offsetof(ngx_http_push_loc_conf_t, max_channel_subscribers),
+      NULL },
+	
+    { ngx_string("push_cors_allow"),
+      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+      ngx_conf_set_str_slot,
+      NGX_HTTP_LOC_CONF_OFFSET,
+      offsetof(ngx_http_push_loc_conf_t, cors_allow),
       NULL },
     
     ngx_null_command
